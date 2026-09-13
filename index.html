@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interflexjob — Remote Work Opportunities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F7F9;
+    --card: #FFFFFF;
+    --border: #E9EBEF;
+    --ink: #17181C;
+    --ink-soft: #6B7280;
+    --blue: #2F5FE0;
+    --blue-deep: #2447B3;
+    --pill-bg: #F1F3F7;
+    --pill-text: #4B5160;
+    --orange-bg: #FEF3E6; --orange-text: #B4640A;
+    --green-bg: #E9F8EF;  --green-text: #17924F;
+    --blue-bg: #E8EEFE;   --blue-text: #2F5FE0;
+    --shadow: 0 1px 2px rgba(16,24,40,0.04), 0 1px 3px rgba(16,24,40,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 20px 60px;}
+  a{text-decoration:none;color:inherit;}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:24px 0 20px;
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;}
+  .logo-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+    display:flex;align-items:center;justify-content:center;
+  }
+  .logo span.f{color:var(--ink);}
+  .logo span.b{color:var(--blue);}
+  .add-btn{
+    display:flex;align-items:center;gap:6px;
+    background:var(--ink);color:#fff;border:none;
+    padding:9px 14px;border-radius:9px;font-weight:600;font-size:0.85rem;cursor:pointer;
+  }
+  .add-btn:hover{background:#000;}
+  .logout-btn{
+    background:none;border:none;color:#9AA0AC;font-size:0.78rem;
+    cursor:pointer;text-decoration:underline;padding:0;
+  }
+
+  .hero h1{font-size:1.9rem;font-weight:800;line-height:1.22;margin:6px 0 8px;}
+  .hero p{color:var(--ink-soft);font-size:1rem;margin:0 0 22px;}
+
+  .filter-bar{display:flex;gap:10px;margin-bottom:26px;}
+  .filter-bar input{
+    flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:11px 14px;font-size:0.92rem;font-family:inherit;color:var(--ink);
+  }
+  .filter-bar input::placeholder{color:#9AA0AC;}
+  .filter-bar select{
+    background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:11px 12px;font-size:0.88rem;font-family:inherit;color:var(--ink-soft);
+  }
+
+  .eyebrow{
+    font-size:0.72rem;font-weight:700;letter-spacing:0.08em;color:#9AA0AC;
+    margin-bottom:14px;
+  }
+
+  .grid{display:flex;flex-direction:column;gap:16px;}
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:18px 18px 16px;position:relative;box-shadow:var(--shadow);
+  }
+  .card-del{
+    position:absolute;top:12px;left:12px;width:24px;height:24px;border-radius:7px;
+    background:rgba(255,255,255,0.9);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .card:hover .card-del{opacity:1;}
+  .card-del:hover{background:#FEE;border-color:#F3C2C2;}
+  .card-del svg{width:13px;height:13px;stroke:#B4231F;}
+  .card-edit{
+    position:absolute;top:12px;left:42px;width:24px;height:24px;border-radius:7px;
+    background:rgba(255,255,255,0.9);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .card:hover .card-edit{opacity:1;}
+  .card-edit:hover{background:#EEF2FE;border-color:#C7D3F7;}
+  .card-edit svg{width:13px;height:13px;stroke:#2F5FE0;}
+
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .icon-badge{
+    width:46px;height:46px;border-radius:12px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-badge svg{width:22px;height:22px;}
+  .flag{
+    display:flex;align-items:center;gap:4px;
+    font-size:0.72rem;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .flag svg{width:11px;height:11px;}
+  .flag.popular{background:var(--orange-bg);color:var(--orange-text);}
+  .flag.trending{background:var(--blue-bg);color:var(--blue-text);}
+  .flag.new{background:var(--green-bg);color:var(--green-text);}
+
+  .card h3{font-size:1.05rem;font-weight:700;margin:0 0 4px;line-height:1.3;}
+  .card p.desc{font-size:0.9rem;color:var(--ink-soft);margin:0 0 12px;line-height:1.4;}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .pill{
+    display:flex;align-items:center;gap:5px;
+    background:var(--pill-bg);color:var(--pill-text);
+    font-size:0.78rem;font-weight:500;padding:5px 10px;border-radius:999px;
+  }
+  .pill svg{width:12px;height:12px;stroke:var(--pill-text);}
+
+  .view-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;background:var(--blue);color:#fff;border:none;
+    padding:13px;border-radius:11px;font-weight:700;font-size:0.95rem;cursor:pointer;
+  }
+  .view-btn:hover{background:var(--blue-deep);}
+  .view-btn svg{width:15px;height:15px;}
+
+  .empty-state{text-align:center;padding:50px 10px;color:#9AA0AC;font-size:0.92rem;}
+
+  footer{padding:30px 0 10px;border-top:1px solid var(--border);margin-top:36px;}
+  footer p{font-size:0.76rem;line-height:1.6;color:#9AA0AC;}
+
+  .overlay{
+    display:none;position:fixed;inset:0;background:rgba(15,17,21,0.45);
+    align-items:flex-end;justify-content:center;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  @media (min-width:600px){ .overlay{align-items:center;} }
+
+  .sheet{
+    background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;
+    padding:22px 22px 26px;max-height:88vh;overflow-y:auto;
+  }
+  @media (min-width:600px){ .sheet{border-radius:18px;} }
+
+  .sheet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;}
+  .sheet-top h2{font-size:1.2rem;font-weight:700;margin:0;line-height:1.3;}
+  .close-btn{
+    width:30px;height:30px;border-radius:8px;border:none;background:var(--pill-bg);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  }
+  .close-btn svg{width:15px;height:15px;}
+
+  .info-box{
+    display:flex;align-items:center;gap:12px;
+    background:#F9FAFB;border:1px solid var(--border);border-radius:12px;
+    padding:12px 14px;margin-bottom:12px;
+  }
+  .how-apply{
+    background:#F9FAFB;border:1px solid var(--border);border-radius:12px;
+    margin-bottom:16px;overflow:hidden;
+  }
+  .how-apply summary{
+    list-style:none;cursor:pointer;padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:0.85rem;font-weight:700;
+  }
+  .how-apply summary::-webkit-details-marker{display:none;}
+  .how-apply summary .chev{transition:transform .15s ease;flex-shrink:0;}
+  .how-apply[open] summary .chev{transform:rotate(180deg);}
+  .how-apply .how-apply-body{padding:0 14px 12px;}
+  .how-apply .info-box{background:#fff;margin-bottom:8px;}
+  .how-apply .info-box:last-child{margin-bottom:0;}
+  .info-box .ic{
+    width:34px;height:34px;border-radius:9px;background:var(--blue-bg);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .info-box .ic svg{width:16px;height:16px;stroke:var(--blue);}
+  .info-box .label{font-size:0.76rem;color:var(--ink-soft);}
+  .info-box .value{font-size:0.95rem;font-weight:700;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+  .field input, .field select, .field textarea{
+    width:100%;border:1px solid var(--border);border-radius:9px;padding:10px 12px;
+    font-family:inherit;font-size:0.9rem;color:var(--ink);
+  }
+  .field textarea{resize:vertical;min-height:60px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .swatches{display:flex;gap:8px;margin-top:2px;}
+  .swatch{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+  .checkline{display:flex;align-items:center;gap:8px;font-size:0.88rem;margin-bottom:16px;}
+  .submit-btn{
+    width:100%;background:var(--blue);color:#fff;border:none;padding:13px;
+    border-radius:11px;font-weight:700;font-size:0.95rem;cursor:pointer;margin-top:4px;
+  }
+  .submit-btn:hover{background:var(--blue-deep);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="2.2"/><line x1="21" y1="21" x2="16.2" y2="16.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <span class="f">Inter<span class="b">flexjob</span></span>
+    </div>
+    <div id="adminControls" style="display:none;align-items:center;gap:10px;">
+      <button class="add-btn" onclick="openAddModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        Add job
+      </button>
+      <button class="logout-btn" onclick="adminLogout()" title="Exit admin mode">Log out</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Explore remote work opportunities</h1>
+    <p>Explore opportunities that match your interests.</p>
+  </div>
+
+  <div class="filter-bar">
+    <input id="search" type="text" placeholder="Search opportunities...">
+    <select id="sort">
+      <option value="default">Newest</option>
+      <option value="title">A–Z</option>
+    </select>
+  </div>
+
+  <div class="eyebrow">AVAILABLE OPPORTUNITIES</div>
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <p>Independent job-search service. Listings are provided by third parties. Brand names and logos belong to their respective owners and do not imply affiliation or endorsement. We may receive compensation for qualifying applications.</p>
+  </footer>
+</div>
+
+<div class="overlay" id="viewOverlay">
+  <div class="sheet" id="viewSheet"></div>
+</div>
+
+<div class="overlay" id="addOverlay">
+  <div class="sheet">
+    <div class="sheet-top">
+      <h2 id="modalTitle">Add a job listing</h2>
+      <button class="close-btn" onclick="closeAddModal()">
+        <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <form id="jobForm" onsubmit="submitJob(event)">
+      <div class="field">
+        <label>Title</label>
+        <input required id="f-title" placeholder="e.g. Podcast Ratings - Spotify">
+      </div>
+      <div class="field">
+        <label>Short description</label>
+        <input required id="f-desc" placeholder="e.g. Explore podcast ratings opportunities">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Region</label>
+          <input required id="f-region" placeholder="USA / Global">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <input required id="f-type" placeholder="Remote / Flexible / Part-time">
+        </div>
+      </div>
+      <div class="field">
+        <label>Icon</label>
+        <select id="f-icon">
+          <option value="headphones">Headphones</option>
+          <option value="music">Music note</option>
+          <option value="clapper">Movie clapper</option>
+          <option value="flask">App / testing</option>
+          <option value="chat">Chat / moderation</option>
+          <option value="briefcase">Briefcase</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Icon color</label>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="field">
+        <label>Badge (optional)</label>
+        <select id="f-flag">
+          <option value="">None</option>
+          <option value="popular">Popular</option>
+          <option value="trending">Trending</option>
+          <option value="new">New today</option>
+        </select>
+      </div>
+      <div class="checkline">
+        <input type="checkbox" id="f-independent" checked style="width:auto;">
+        <label for="f-independent" style="margin:0;font-weight:400;">Independent listing</label>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Schedule (shown in details)</label>
+          <input id="f-schedule" placeholder="e.g. Shift-based">
+        </div>
+        <div class="field">
+          <label>Location detail</label>
+          <input id="f-location" placeholder="e.g. USA · Part-time">
+        </div>
+      </div>
+      <div class="field">
+        <label>Pay (optional, shown in details)</label>
+        <input id="f-pay" placeholder="e.g. $18–24 / hour">
+      </div>
+      <div class="field">
+        <label>About this job (optional, longer description)</label>
+        <textarea id="f-fulldesc" placeholder="What the task involves, requirements, how it's paid, etc."></textarea>
+      </div>
+      <div class="field">
+        <label>Apply link</label>
+        <input id="f-url" placeholder="https://...">
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtnLabel">Add listing</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const ICONS = {
+    headphones: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 14v-2a8 8 0 0 1 16 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="2.5" y="14" width="5" height="7" rx="2" fill="#fff"/><rect x="16.5" y="14" width="5" height="7" rx="2" fill="#fff"/></svg>`,
+    music: `<svg viewBox="0 0 24 24" fill="none"><path d="M9 18V6l11-2v12" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="#fff"/><circle cx="17.5" cy="16" r="2.5" fill="#fff"/></svg>`,
+    clapper: `<svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5 20.5 6 21 8.5 3.5 12z" fill="#fff"/><rect x="3" y="10" width="18" height="10" rx="1.5" fill="#fff" fill-opacity="0.85"/></svg>`,
+    flask: `<svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`,
+    chat: `<svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.4L3 20l1.2-5.3A8.5 8.5 0 1 1 21 11.5Z" fill="#fff"/></svg>`,
+    briefcase: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="12" rx="2" stroke="#fff" stroke-width="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#fff" stroke-width="2"/></svg>`
+  };
+  const PIN = `<svg viewBox="0 0 24 24" fill="none"><path d="M12 22s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12Z" stroke-width="2"/><circle cx="12" cy="10" r="2.4" stroke-width="2"/></svg>`;
+  const GLOBE = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" stroke-width="1.6"/></svg>`;
+  const CHECK = `<svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const CLOCK_ICON = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke-width="2" stroke-linecap="round"/></svg>`;
+  const PAY_ICON = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M12 7v10M9.5 9.5c0-1.4 1.2-2.2 2.5-2.2s2.5.7 2.5 2c0 2.5-5 1.5-5 4 0 1.3 1.2 2.2 2.5 2.2s2.5-.8 2.5-2.2" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  const FLAG_ICONS = {
+    popular: `<svg viewBox="0 0 24 24" fill="none"><path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8Z" fill="currentColor"/></svg>`,
+    trending: `<svg viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8M21 7v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    new: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l1.8 5.5L19 9l-5.2 1.5L12 16l-1.8-5.5L5 9l5.2-1.5Z" fill="currentColor"/></svg>`
+  };
+  const FLAG_LABEL = { popular:"Popular", trending:"Trending", new:"New today" };
+  const SWATCHES = ["#3EA96E","#1B1D22","#E0342B","#5A62E8","#2F5FE0","#B4640A"];
+
+  // ---------- Admin gate ----------
+  // Change this before you deploy. Share it only with yourself.
+  const ADMIN_KEY = "changeme123";
+
+  function checkAdmin(){
+    const params = new URLSearchParams(window.location.search);
+    const keyParam = params.get('admin');
+    if(keyParam && keyParam === ADMIN_KEY){
+      sessionStorage.setItem('qfj_admin', '1');
+      params.delete('admin');
+      const qs = params.toString();
+      const cleanUrl = window.location.pathname + (qs ? '?' + qs : '') + window.location.hash;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+    return sessionStorage.getItem('qfj_admin') === '1';
+  }
+  function adminLogout(){
+    sessionStorage.removeItem('qfj_admin');
+    isAdmin = false;
+    document.getElementById('adminControls').style.display = 'none';
+    render();
+  }
+  let isAdmin = checkAdmin();
+
+  const STORAGE_KEY = "interflexjob_jobs_v1";
+  const DEFAULT_JOBS = [
+    { id:1, title:"Music Ratings - Spotify", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"headphones", color:"#3EA96E", flag:"popular", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Listen to newly released tracks and playlists, then submit short written ratings on sound quality, mood fit, and replay value. No experience needed — you'll get a quick style guide before your first batch.\n\nMost reviewers complete 5–10 tracks per session. Payouts are issued weekly once you hit the $20 threshold.", url:"#" },
+    { id:2, title:"Movie Reviews", desc:"Explore movie review opportunities", region:"Global", type:"Remote", independent:false, icon:"clapper", color:"#1B1D22", flag:"trending", schedule:"Flexible", location:"Global · Remote", pay:"$10–18 / review", fulldesc:"Watch trailers or short clips from upcoming releases and write a brief, honest review covering pacing, acting, and whether you'd recommend it.\n\nReviews are typically 100–200 words. New titles are added daily, so you can work whenever you have free time.", url:"#" },
+    { id:3, title:"App Beta Testing - Tiktok", desc:"Test new features and share feedback.", region:"Global", type:"Flexible", independent:true, icon:"music", color:"#111214", flag:"new", schedule:"Flexible", location:"Global · Flexible", pay:"$20–30 / test session", fulldesc:"Try out unreleased app features on your own phone and report bugs, confusing flows, or crashes through a short feedback form.\n\nEach test session takes roughly 20–30 minutes. You'll need a smartphone and a stable internet connection.", url:"#" },
+    { id:4, title:"Community Moderation - Discord", desc:"Admin and moderation.", region:"USA", type:"Part-time", independent:true, icon:"chat", color:"#5A62E8", flag:"", schedule:"Shift-based", location:"USA · Part-time", pay:"$15/hour", fulldesc:"Monitor chat activity during your assigned shift, enforce community guidelines, and escalate serious issues to the lead moderator.\n\nShifts are 3–4 hours and scheduled a week in advance. Prior moderation experience is a plus but not required.", url:"#" },
+    { id:5, title:"Music Ratings - Apple", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"music", color:"#E0342B", flag:"", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Same format as our Spotify ratings gig — listen to a short batch of tracks and rate them for quality and mood fit.\n\nGreat as a second listing if you want more volume from the same type of task.", url:"#" },
+  ];
+
+  function loadJobs(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return DEFAULT_JOBS.slice();
+  }
+  function saveJobs(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); }
+
+  let jobs = loadJobs();
+  let selectedColor = SWATCHES[4];
+
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('search');
+  const sortSelect = document.getElementById('sort');
+
+  function pill(icon, text){ return `<span class="pill">${icon}${text}</span>`; }
+
+  function cardHTML(job){
+    const flagHTML = job.flag ? `<span class="flag ${job.flag}">${FLAG_ICONS[job.flag]}${FLAG_LABEL[job.flag]}</span>` : `<span></span>`;
+    return `
+      <div class="card">
+        ${isAdmin ? `<div class="card-del" onclick="deleteJob(${job.id})" title="Remove listing">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="card-edit" onclick="openEditModal(${job.id})" title="Edit listing">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>` : ''}
+        <div class="card-top">
+          <div class="icon-badge" style="background:${job.color}">${ICONS[job.icon] || ICONS.briefcase}</div>
+          ${flagHTML}
+        </div>
+        <h3>${job.title}</h3>
+        <p class="desc">${job.desc}</p>
+        <div class="pills">
+          ${pill(PIN, job.region)}
+          ${pill(GLOBE, job.type)}
+          ${job.independent ? pill(CHECK, "Independent listing") : ""}
+        </div>
+        <button class="view-btn" onclick="openView(${job.id})">
+          View details
+          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+      </div>`;
+  }
+
+  function render(){
+    let items = jobs.filter(j =>
+      j.title.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+      j.desc.toLowerCase().includes(searchInput.value.toLowerCase())
+    );
+    if(sortSelect.value === 'title'){
+      items = items.slice().sort((a,b)=>a.title.localeCompare(b.title));
+    }
+    grid.innerHTML = items.map(cardHTML).join('') || `<div class="empty-state">No listings match your search.</div>`;
+  }
+
+  function openView(id){
+    const job = jobs.find(j => j.id === id);
+    if(!job) return;
+    document.getElementById('viewSheet').innerHTML = `
+      <div class="sheet-top">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div class="icon-badge" style="background:${job.color}">${ICONS[job.icon] || ICONS.briefcase}</div>
+          <div>
+            <h2>${job.title}</h2>
+            <div class="pills" style="margin-top:8px;margin-bottom:0;">
+              ${pill(PIN, job.region)}${pill(GLOBE, job.type)}
+            </div>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeView()">
+          <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div style="font-size:0.82rem;font-weight:700;margin:16px 0 8px;">Job details</div>
+      <div class="info-box">
+        <div class="ic">${CLOCK_ICON.replace(/currentColor/g,'')}</div>
+        <div><div class="label">Schedule</div><div class="value">${job.schedule || job.type}</div></div>
+      </div>
+      <div class="info-box">
+        <div class="ic">${PIN}</div>
+        <div><div class="label">Location</div><div class="value">${job.location || job.region}</div></div>
+      </div>
+      ${job.pay ? `<div class="info-box">
+        <div class="ic">${PAY_ICON}</div>
+        <div><div class="label">Pay</div><div class="value">${job.pay}</div></div>
+      </div>` : ''}
+      <details class="how-apply">
+        <summary>
+          <span>How to apply <span style="font-weight:400;color:var(--ink-soft);font-size:0.78rem;">— tap to see the steps</span></span>
+          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="how-apply-body">
+          <div class="info-box">
+            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">1</div>
+            <div><div class="label">Step 1</div><div class="value">Click "Apply now" below</div></div>
+          </div>
+          <div class="info-box">
+            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">2</div>
+            <div><div class="label">Step 2</div><div class="value">Enter your name and contact info</div></div>
+          </div>
+          <div class="info-box">
+            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">3</div>
+            <div><div class="label">Step 3</div><div class="value">Submit your application</div></div>
+          </div>
+          <div class="info-box">
+            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">4</div>
+            <div><div class="label">Step 4</div><div class="value">Not accepted? Reapply anytime</div></div>
+          </div>
+        </div>
+      </details>
+      <a href="${job.url || '#'}" target="_blank" rel="noopener" class="view-btn" style="margin-top:6px;">
+        Apply now
+        <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </a>
+    `;
+    document.getElementById('viewOverlay').classList.add('open');
+  }
+  function closeView(){ document.getElementById('viewOverlay').classList.remove('open'); }
+
+  function deleteJob(id){
+    if(!isAdmin) return;
+    jobs = jobs.filter(j => j.id !== id);
+    saveJobs();
+    render();
+  }
+
+  function buildSwatches(){
+    const box = document.getElementById('swatches');
+    box.innerHTML = SWATCHES.map(c =>
+      `<div class="swatch ${c===selectedColor?'sel':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`
+    ).join('');
+  }
+  function pickColor(c){ selectedColor = c; buildSwatches(); }
+
+  let editingId = null;
+
+  function openAddModal(){
+    if(!isAdmin) return;
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add a job listing';
+    document.getElementById('submitBtnLabel').textContent = 'Add listing';
+    document.getElementById('jobForm').reset();
+    selectedColor = SWATCHES[4];
+    buildSwatches();
+    document.getElementById('addOverlay').classList.add('open');
+  }
+  function closeAddModal(){ document.getElementById('addOverlay').classList.remove('open'); }
+
+  function openEditModal(id){
+    if(!isAdmin) return;
+    const job = jobs.find(j => j.id === id);
+    if(!job) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit job listing';
+    document.getElementById('submitBtnLabel').textContent = 'Save changes';
+    document.getElementById('f-title').value = job.title;
+    document.getElementById('f-desc').value = job.desc;
+    document.getElementById('f-region').value = job.region;
+    document.getElementById('f-type').value = job.type;
+    document.getElementById('f-icon').value = job.icon;
+    document.getElementById('f-flag').value = job.flag || '';
+    document.getElementById('f-independent').checked = !!job.independent;
+    document.getElementById('f-schedule').value = job.schedule || '';
+    document.getElementById('f-location').value = job.location || '';
+    document.getElementById('f-pay').value = job.pay || '';
+    document.getElementById('f-fulldesc').value = job.fulldesc || '';
+    document.getElementById('f-url').value = job.url === '#' ? '' : (job.url || '');
+    selectedColor = job.color;
+    buildSwatches();
+    document.getElementById('addOverlay').classList.add('open');
+  }
+
+  function submitJob(e){
+    e.preventDefault();
+    if(!isAdmin) return;
+    const fields = {
+      title: document.getElementById('f-title').value.trim(),
+      desc: document.getElementById('f-desc').value.trim(),
+      region: document.getElementById('f-region').value.trim(),
+      type: document.getElementById('f-type').value.trim(),
+      independent: document.getElementById('f-independent').checked,
+      icon: document.getElementById('f-icon').value,
+      color: selectedColor,
+      flag: document.getElementById('f-flag').value,
+      schedule: document.getElementById('f-schedule').value.trim(),
+      location: document.getElementById('f-location').value.trim(),
+      pay: document.getElementById('f-pay').value.trim(),
+      fulldesc: document.getElementById('f-fulldesc').value.trim(),
+      url: document.getElementById('f-url').value.trim() || '#'
+    };
+    if(editingId !== null){
+      const idx = jobs.findIndex(j => j.id === editingId);
+      if(idx !== -1) jobs[idx] = { ...jobs[idx], ...fields };
+    } else {
+      jobs.unshift({ id: Date.now(), ...fields });
+    }
+    saveJobs();
+    closeAddModal();
+    render();
+  }
+
+  document.getElementById('viewOverlay').addEventListener('click', e => { if(e.target.id === 'viewOverlay') closeView(); });
+  document.getElementById('addOverlay').addEventListener('click', e => { if(e.target.id === 'addOverlay') closeAddModal(); });
+  searchInput.addEventListener('input', render);
+  sortSelect.addEventListener('change', render);
+
+  if(isAdmin){ document.getElementById('adminControls').style.display = 'flex'; }
+  render();
+</script>
+
+</body>
+</html>
