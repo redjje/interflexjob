@@ -164,21 +164,6 @@
     background:#F9FAFB;border:1px solid var(--border);border-radius:12px;
     padding:12px 14px;margin-bottom:12px;
   }
-  .how-apply{
-    background:#F9FAFB;border:1px solid var(--border);border-radius:12px;
-    margin-bottom:16px;overflow:hidden;
-  }
-  .how-apply summary{
-    list-style:none;cursor:pointer;padding:12px 14px;
-    display:flex;align-items:center;justify-content:space-between;
-    font-size:0.85rem;font-weight:700;
-  }
-  .how-apply summary::-webkit-details-marker{display:none;}
-  .how-apply summary .chev{transition:transform .15s ease;flex-shrink:0;}
-  .how-apply[open] summary .chev{transform:rotate(180deg);}
-  .how-apply .how-apply-body{padding:0 14px 12px;}
-  .how-apply .info-box{background:#fff;margin-bottom:8px;}
-  .how-apply .info-box:last-child{margin-bottom:0;}
   .info-box .ic{
     width:34px;height:34px;border-radius:9px;background:var(--blue-bg);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -186,6 +171,15 @@
   .info-box .ic svg{width:16px;height:16px;stroke:var(--blue);}
   .info-box .label{font-size:0.76rem;color:var(--ink-soft);}
   .info-box .value{font-size:0.95rem;font-weight:700;}
+
+  .progress-dots{display:flex;justify-content:center;gap:6px;margin:2px 0 16px;}
+  .progress-dots span{width:6px;height:6px;border-radius:50%;background:var(--border);}
+  .progress-dots span.active{background:var(--blue);width:16px;border-radius:3px;}
+  .back-link{
+    display:block;width:100%;background:none;border:none;text-align:center;
+    color:var(--ink-soft);font-size:0.85rem;font-weight:600;padding:12px 0 0;cursor:pointer;
+  }
+  .back-link:hover{color:var(--ink);}
 
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:6px;}
@@ -356,7 +350,7 @@
 
   // ---------- Admin gate ----------
   // Change this before you deploy. Share it only with yourself.
-  const ADMIN_KEY = "adminred";
+  const ADMIN_KEY = "changeme123";
 
   function checkAdmin(){
     const params = new URLSearchParams(window.location.search);
@@ -444,10 +438,23 @@
     grid.innerHTML = items.map(cardHTML).join('') || `<div class="empty-state">No listings match your search.</div>`;
   }
 
+  let currentViewJobId = null;
+  let currentStep = 1;
+
   function openView(id){
-    const job = jobs.find(j => j.id === id);
+    currentViewJobId = id;
+    currentStep = 1;
+    renderViewSheet();
+    document.getElementById('viewOverlay').classList.add('open');
+  }
+  function goToStep(n){ currentStep = n; renderViewSheet(); }
+  function closeView(){ document.getElementById('viewOverlay').classList.remove('open'); }
+
+  function renderViewSheet(){
+    const job = jobs.find(j => j.id === currentViewJobId);
     if(!job) return;
-    document.getElementById('viewSheet').innerHTML = `
+
+    const headerHTML = `
       <div class="sheet-top">
         <div style="display:flex;gap:12px;align-items:flex-start;">
           <div class="icon-badge" style="background:${job.color}">${ICONS[job.icon] || ICONS.briefcase}</div>
@@ -462,51 +469,59 @@
           <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </div>
-      <div style="font-size:0.82rem;font-weight:700;margin:16px 0 8px;">Job details</div>
-      <div class="info-box">
-        <div class="ic">${CLOCK_ICON.replace(/currentColor/g,'')}</div>
-        <div><div class="label">Schedule</div><div class="value">${job.schedule || job.type}</div></div>
-      </div>
-      <div class="info-box">
-        <div class="ic">${PIN}</div>
-        <div><div class="label">Location</div><div class="value">${job.location || job.region}</div></div>
-      </div>
-      ${job.pay ? `<div class="info-box">
-        <div class="ic">${PAY_ICON}</div>
-        <div><div class="label">Pay</div><div class="value">${job.pay}</div></div>
-      </div>` : ''}
-      <details class="how-apply">
-        <summary>
-          <span>How to apply <span style="font-weight:400;color:var(--ink-soft);font-size:0.78rem;">— tap to see the steps</span></span>
-          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </summary>
-        <div class="how-apply-body">
-          <div class="info-box">
-            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">1</div>
-            <div><div class="label">Step 1</div><div class="value">Click "Apply now" below</div></div>
-          </div>
-          <div class="info-box">
-            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">2</div>
-            <div><div class="label">Step 2</div><div class="value">Enter your name and contact info</div></div>
-          </div>
-          <div class="info-box">
-            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">3</div>
-            <div><div class="label">Step 3</div><div class="value">Submit your application</div></div>
-          </div>
-          <div class="info-box">
-            <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">4</div>
-            <div><div class="label">Step 4</div><div class="value">Not accepted? Reapply anytime</div></div>
-          </div>
-        </div>
-      </details>
-      <a href="${job.url || '#'}" target="_blank" rel="noopener" class="view-btn" style="margin-top:6px;">
-        Apply now
-        <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </a>
+      <div class="progress-dots"><span class="${currentStep===1?'active':''}"></span><span class="${currentStep===2?'active':''}"></span></div>
     `;
-    document.getElementById('viewOverlay').classList.add('open');
+
+    let bodyHTML = '';
+    if(currentStep === 1){
+      bodyHTML = `
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;">Job details</div>
+        <div class="info-box">
+          <div class="ic">${CLOCK_ICON.replace(/currentColor/g,'')}</div>
+          <div><div class="label">Schedule</div><div class="value">${job.schedule || job.type}</div></div>
+        </div>
+        <div class="info-box">
+          <div class="ic">${PIN}</div>
+          <div><div class="label">Location</div><div class="value">${job.location || job.region}</div></div>
+        </div>
+        ${job.pay ? `<div class="info-box">
+          <div class="ic">${PAY_ICON}</div>
+          <div><div class="label">Pay</div><div class="value">${job.pay}</div></div>
+        </div>` : ''}
+        <button class="view-btn" style="margin-top:6px;" onclick="goToStep(2)">
+          Next: How to apply
+          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+      `;
+    } else {
+      bodyHTML = `
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;">How to apply</div>
+        <div class="info-box">
+          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">1</div>
+          <div><div class="label">Step 1</div><div class="value">Click "Apply now" below</div></div>
+        </div>
+        <div class="info-box">
+          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">2</div>
+          <div><div class="label">Step 2</div><div class="value">Enter your name and contact info</div></div>
+        </div>
+        <div class="info-box">
+          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">3</div>
+          <div><div class="label">Step 3</div><div class="value">Submit your application</div></div>
+        </div>
+        <div class="info-box">
+          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">4</div>
+          <div><div class="label">Step 4</div><div class="value">Not accepted? Reapply anytime</div></div>
+        </div>
+        <a href="${job.url || '#'}" target="_blank" rel="noopener" class="view-btn" style="margin-top:6px;">
+          Apply now
+          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </a>
+        <button class="back-link" onclick="goToStep(1)">← Back to job details</button>
+      `;
+    }
+
+    document.getElementById('viewSheet').innerHTML = headerHTML + bodyHTML;
   }
-  function closeView(){ document.getElementById('viewOverlay').classList.remove('open'); }
 
   function deleteJob(id){
     if(!isAdmin) return;
