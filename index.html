@@ -222,6 +222,9 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         Add job
       </button>
+      <button class="add-btn" style="background:var(--pill-bg);color:var(--ink);" onclick="openStepsModal()">
+        Edit steps
+      </button>
       <button class="logout-btn" onclick="adminLogout()" title="Exit admin mode">Log out</button>
     </div>
   </header>
@@ -333,6 +336,37 @@
   </div>
 </div>
 
+<div class="overlay" id="stepsOverlay">
+  <div class="sheet">
+    <div class="sheet-top">
+      <h2>Edit "How to apply" steps</h2>
+      <button class="close-btn" onclick="closeStepsModal()">
+        <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <p class="desc" style="margin:0 0 16px;">These 4 steps show on every job listing.</p>
+    <form id="stepsForm" onsubmit="submitSteps(event)">
+      <div class="field">
+        <label>Step 1</label>
+        <input required id="s-step-1">
+      </div>
+      <div class="field">
+        <label>Step 2</label>
+        <input required id="s-step-2">
+      </div>
+      <div class="field">
+        <label>Step 3</label>
+        <input required id="s-step-3">
+      </div>
+      <div class="field">
+        <label>Step 4</label>
+        <input required id="s-step-4">
+      </div>
+      <button type="submit" class="submit-btn">Save steps</button>
+    </form>
+  </div>
+</div>
+
 <script>
   const ICONS = {
     headphones: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 14v-2a8 8 0 0 1 16 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="2.5" y="14" width="5" height="7" rx="2" fill="#fff"/><rect x="16.5" y="14" width="5" height="7" rx="2" fill="#fff"/></svg>`,
@@ -380,6 +414,22 @@
   let isAdmin = checkAdmin();
 
   const STORAGE_KEY = "interflexjob_jobs_v1";
+  const STEPS_KEY = "interflexjob_apply_steps_v1";
+  const DEFAULT_STEPS = [
+    'Click "Apply now" below',
+    "Enter your name and contact info",
+    "Submit your application",
+    "Not accepted? Reapply anytime"
+  ];
+  function loadSteps(){
+    try{
+      const raw = localStorage.getItem(STEPS_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return DEFAULT_STEPS.slice();
+  }
+  function saveSteps(){ localStorage.setItem(STEPS_KEY, JSON.stringify(applySteps)); }
+  let applySteps = loadSteps();
   const DEFAULT_JOBS = [
     { id:1, title:"Music Ratings - Spotify", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"headphones", color:"#3EA96E", flag:"popular", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Listen to newly released tracks and playlists, then submit short written ratings on sound quality, mood fit, and replay value. No experience needed — you'll get a quick style guide before your first batch.\n\nMost reviewers complete 5–10 tracks per session. Payouts are issued weekly once you hit the $20 threshold.", url:"#" },
     { id:2, title:"Movie Reviews", desc:"Explore movie review opportunities", region:"Global", type:"Remote", independent:false, icon:"clapper", color:"#1B1D22", flag:"trending", schedule:"Flexible", location:"Global · Remote", pay:"$10–18 / review", fulldesc:"Watch trailers or short clips from upcoming releases and write a brief, honest review covering pacing, acting, and whether you'd recommend it.\n\nReviews are typically 100–200 words. New titles are added daily, so you can work whenever you have free time.", url:"#" },
@@ -513,22 +563,11 @@
     } else {
       bodyHTML = `
         <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;">How to apply</div>
+        ${applySteps.map((text, i) => `
         <div class="info-box">
-          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">1</div>
-          <div><div class="label">Step 1</div><div class="value">Click "Apply now" below</div></div>
-        </div>
-        <div class="info-box">
-          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">2</div>
-          <div><div class="label">Step 2</div><div class="value">Enter your name and contact info</div></div>
-        </div>
-        <div class="info-box">
-          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">3</div>
-          <div><div class="label">Step 3</div><div class="value">Submit your application</div></div>
-        </div>
-        <div class="info-box">
-          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">4</div>
-          <div><div class="label">Step 4</div><div class="value">Not accepted? Reapply anytime</div></div>
-        </div>
+          <div class="ic" style="font-weight:800;color:var(--blue);font-size:0.9rem;">${i+1}</div>
+          <div><div class="label">Step ${i+1}</div><div class="value">${text}</div></div>
+        </div>`).join('')}
         <a href="${job.url || '#'}" target="_blank" rel="noopener" class="view-btn" style="margin-top:6px;">
           Apply now
           <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
@@ -568,6 +607,22 @@
     document.getElementById('addOverlay').classList.add('open');
   }
   function closeAddModal(){ document.getElementById('addOverlay').classList.remove('open'); }
+
+  function openStepsModal(){
+    if(!isAdmin) return;
+    applySteps.forEach((text, i) => {
+      document.getElementById('s-step-' + (i+1)).value = text;
+    });
+    document.getElementById('stepsOverlay').classList.add('open');
+  }
+  function closeStepsModal(){ document.getElementById('stepsOverlay').classList.remove('open'); }
+  function submitSteps(e){
+    e.preventDefault();
+    if(!isAdmin) return;
+    applySteps = [1,2,3,4].map(i => document.getElementById('s-step-' + i).value.trim());
+    saveSteps();
+    closeStepsModal();
+  }
 
   function openEditModal(id){
     if(!isAdmin) return;
@@ -624,6 +679,7 @@
 
   document.getElementById('viewOverlay').addEventListener('click', e => { if(e.target.id === 'viewOverlay') closeView(); });
   document.getElementById('addOverlay').addEventListener('click', e => { if(e.target.id === 'addOverlay') closeAddModal(); });
+  document.getElementById('stepsOverlay').addEventListener('click', e => { if(e.target.id === 'stepsOverlay') closeStepsModal(); });
   searchInput.addEventListener('input', render);
   sortSelect.addEventListener('change', render);
 
