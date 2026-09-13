@@ -98,6 +98,18 @@
   .card:hover .card-edit{opacity:1;}
   .card-edit:hover{background:#EEF2FE;border-color:#C7D3F7;}
   .card-edit svg{width:13px;height:13px;stroke:#2F5FE0;}
+  .card-move{
+    position:absolute;top:12px;width:24px;height:24px;border-radius:7px;
+    background:rgba(255,255,255,0.9);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .card-move.up{left:72px;}
+  .card-move.down{left:102px;}
+  .card:hover .card-move{opacity:1;}
+  .card-move:hover{background:#F1F3F7;}
+  .card-move.disabled{pointer-events:none;opacity:0.3 !important;}
+  .card-move svg{width:13px;height:13px;stroke:#4B5160;}
 
   .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
   .icon-badge{
@@ -451,6 +463,9 @@
 
   function cardHTML(job){
     const flagHTML = job.flag ? `<span class="flag ${job.flag}">${FLAG_ICONS[job.flag]}${FLAG_LABEL[job.flag]}</span>` : `<span></span>`;
+    const trueIdx = jobs.findIndex(j => j.id === job.id);
+    const isFirst = trueIdx <= 0;
+    const isLast = trueIdx === jobs.length - 1;
     return `
       <div class="card">
         ${isAdmin ? `<div class="card-del" onclick="deleteJob(${job.id})" title="Remove listing">
@@ -458,6 +473,12 @@
         </div>
         <div class="card-edit" onclick="openEditModal(${job.id})" title="Edit listing">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card-move up ${isFirst ? 'disabled' : ''}" onclick="moveJob(${job.id}, -1)" title="Move up">
+          <svg viewBox="0 0 24 24" fill="none"><polyline points="6 15 12 9 18 15" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card-move down ${isLast ? 'disabled' : ''}" onclick="moveJob(${job.id}, 1)" title="Move down">
+          <svg viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>` : ''}
         <div class="card-top">
           ${badgeHTML(job)}
@@ -575,6 +596,17 @@
   function deleteJob(id){
     if(!isAdmin) return;
     jobs = jobs.filter(j => j.id !== id);
+    saveJobs();
+    render();
+  }
+
+  function moveJob(id, direction){
+    if(!isAdmin) return;
+    const idx = jobs.findIndex(j => j.id === id);
+    if(idx === -1) return;
+    const newIdx = idx + direction;
+    if(newIdx < 0 || newIdx >= jobs.length) return;
+    [jobs[idx], jobs[newIdx]] = [jobs[newIdx], jobs[idx]];
     saveJobs();
     render();
   }
