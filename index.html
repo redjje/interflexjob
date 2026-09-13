@@ -132,6 +132,13 @@
   }
   .view-btn:hover{background:var(--blue-deep);}
   .view-btn svg{width:15px;height:15px;}
+  .view-btn-secondary{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;background:var(--pill-bg);color:var(--ink);border:none;
+    padding:13px;border-radius:11px;font-weight:600;font-size:0.92rem;cursor:pointer;
+  }
+  .view-btn-secondary:hover{background:#E4E7EC;}
+  .view-btn-secondary svg{width:14px;height:14px;stroke:var(--ink);}
 
   .empty-state{text-align:center;padding:50px 10px;color:#9AA0AC;font-size:0.92rem;}
 
@@ -469,11 +476,20 @@
           <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </div>
-      <div class="progress-dots"><span class="${currentStep===1?'active':''}"></span><span class="${currentStep===2?'active':''}"></span></div>
+      <div class="progress-dots"><span class="${currentStep===1?'active':''}"></span><span class="${currentStep===2?'active':''}"></span><span class="${currentStep===3?'active':''}"></span></div>
     `;
 
     let bodyHTML = '';
     if(currentStep === 1){
+      bodyHTML = `
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;">About this job</div>
+        <p class="desc" style="margin:0 0 16px;white-space:pre-line;">${job.fulldesc || job.desc}</p>
+        <button class="view-btn-secondary" style="margin-top:6px;" onclick="goToStep(2)">
+          Continue
+          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#333" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#333" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+      `;
+    } else if(currentStep === 2){
       bodyHTML = `
         <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;">Job details</div>
         <div class="info-box">
@@ -488,10 +504,11 @@
           <div class="ic">${PAY_ICON}</div>
           <div><div class="label">Pay</div><div class="value">${job.pay}</div></div>
         </div>` : ''}
-        <button class="view-btn" style="margin-top:6px;" onclick="goToStep(2)">
-          Next: How to apply
-          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <button class="view-btn-secondary" style="margin-top:6px;" onclick="goToStep(3)">
+          Continue
+          <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#333" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#333" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
         </button>
+        <button class="back-link" onclick="goToStep(1)">← Back to job description</button>
       `;
     } else {
       bodyHTML = `
@@ -516,7 +533,7 @@
           Apply now
           <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
         </a>
-        <button class="back-link" onclick="goToStep(1)">← Back to job details</button>
+        <button class="back-link" onclick="goToStep(2)">← Back to job details</button>
       `;
     }
 
