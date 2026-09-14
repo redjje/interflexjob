@@ -372,6 +372,7 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const ICONS = {
     headphones: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 14v-2a8 8 0 0 1 16 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="2.5" y="14" width="5" height="7" rx="2" fill="#fff"/><rect x="16.5" y="14" width="5" height="7" rx="2" fill="#fff"/></svg>`,
@@ -418,7 +419,6 @@
   }
   let isAdmin = checkAdmin();
 
-  const STORAGE_KEY = "interflexjob_jobs_v1";
   const DEFAULT_STEPS = [
     'Click "Apply now" below',
     "Enter your name and contact info",
@@ -433,16 +433,41 @@
     { id:5, title:"Music Ratings - Apple", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"music", color:"#E0342B", flag:"", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Same format as our Spotify ratings gig — listen to a short batch of tracks and rate them for quality and mood fit.\n\nGreat as a second listing if you want more volume from the same type of task.", url:"#" },
   ];
 
-  function loadJobs(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
-    return DEFAULT_JOBS.slice();
-  }
-  function saveJobs(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); }
+  // ---------- Supabase (shared cloud storage) ----------
+  const SUPABASE_URL = "https://xumcklbnwyswjomxlgfh.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_I2SZTrEr7_ycFffYY3pEPw_YeFVEWPI";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let jobs = loadJobs();
+  async function loadJobsFromCloud(){
+    const { data, error } = await sb.from('interflexjob_data').select('jobs').eq('id', 1).single();
+    if(error){ console.error('Load error:', error); return; }
+    if(data && data.jobs && data.jobs.length){
+      jobs = data.jobs;
+    } else if(isAdmin){
+      // First time setup: seed the cloud table with the default listings.
+      jobs = DEFAULT_JOBS.slice();
+      saveJobs();
+    }
+    render();
+  }
+
+  async function saveJobs(){
+    const { error } = await sb.from('interflexjob_data').update({ jobs, admin_key: ADMIN_KEY }).eq('id', 1);
+    if(error){ console.error('Save error:', error); alert('Could not save changes: ' + error.message); }
+  }
+
+  function subscribeToJobUpdates(){
+    sb.channel('interflexjob_data_changes')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'interflexjob_data', filter: 'id=eq.1' }, payload => {
+        if(payload.new && payload.new.jobs){
+          jobs = payload.new.jobs;
+          render();
+        }
+      })
+      .subscribe();
+  }
+
+  let jobs = DEFAULT_JOBS.slice();
   let selectedColor = SWATCHES[4];
   let selectedImage = null;
 
@@ -727,6 +752,8 @@
 
   if(isAdmin){ document.getElementById('adminControls').style.display = 'flex'; }
   render();
+  loadJobsFromCloud();
+  subscribeToJobUpdates();
 </script>
 
 </body>
