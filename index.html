@@ -207,6 +207,15 @@
     font-family:inherit;font-size:0.9rem;color:var(--ink);
   }
   .field textarea{resize:vertical;min-height:60px;}
+  .step-field-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .step-field-row input{flex:1;}
+  .step-field-remove{
+    width:34px;height:34px;border-radius:9px;border:1px solid var(--border);
+    background:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;
+  }
+  .step-field-remove:hover{background:#FEE;border-color:#F3C2C2;}
+  .step-field-remove svg{width:13px;height:13px;stroke:#B4231F;}
   .field input[type="file"]{padding:8px;}
   #image-preview.show{display:flex !important;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -351,20 +360,9 @@
         <input id="f-url" placeholder="https://...">
       </div>
       <div class="field">
-        <label>How to apply — Step 1</label>
-        <input id="f-step1" placeholder='e.g. Click "Apply now" below'>
-      </div>
-      <div class="field">
-        <label>How to apply — Step 2</label>
-        <input id="f-step2" placeholder="e.g. Enter your name and contact info">
-      </div>
-      <div class="field">
-        <label>How to apply — Step 3</label>
-        <input id="f-step3" placeholder="e.g. Submit your application">
-      </div>
-      <div class="field">
-        <label>How to apply — Step 4</label>
-        <input id="f-step4" placeholder="e.g. Not accepted? Reapply anytime">
+        <label>How to apply steps</label>
+        <div id="steps-fields"></div>
+        <button type="button" class="view-btn-secondary" style="margin-top:8px;" onclick="addStepField()">+ Add step</button>
       </div>
       <button type="submit" class="submit-btn" id="submitBtnLabel">Add listing</button>
     </form>
@@ -470,6 +468,7 @@
   let jobs = DEFAULT_JOBS.slice();
   let selectedColor = SWATCHES[4];
   let selectedImage = null;
+  let formSteps = [];
 
   const grid = document.getElementById('grid');
   const searchInput = document.getElementById('search');
@@ -644,6 +643,20 @@
   }
   function pickColor(c){ selectedColor = c; buildSwatches(); }
 
+  function renderStepFields(){
+    const box = document.getElementById('steps-fields');
+    box.innerHTML = formSteps.map((text, i) => `
+      <div class="step-field-row">
+        <input value="${text.replace(/"/g,'&quot;')}" placeholder="Step ${i+1}" oninput="updateStepField(${i}, this.value)">
+        <div class="step-field-remove" onclick="removeStepField(${i})" title="Remove step">
+          <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>`).join('');
+  }
+  function updateStepField(i, value){ formSteps[i] = value; }
+  function addStepField(){ formSteps.push(''); renderStepFields(); }
+  function removeStepField(i){ formSteps.splice(i, 1); renderStepFields(); }
+
   function handleImageUpload(e){
     const file = e.target.files[0];
     if(!file) return;
@@ -673,9 +686,8 @@
     document.getElementById('modalTitle').textContent = 'Add a job listing';
     document.getElementById('submitBtnLabel').textContent = 'Add listing';
     document.getElementById('jobForm').reset();
-    DEFAULT_STEPS.forEach((text, i) => {
-      document.getElementById('f-step' + (i+1)).value = text;
-    });
+    formSteps = DEFAULT_STEPS.slice();
+    renderStepFields();
     selectedColor = SWATCHES[4];
     buildSwatches();
     selectedImage = null;
@@ -704,9 +716,8 @@
     document.getElementById('f-fulldesc').value = job.fulldesc || '';
     document.getElementById('f-url').value = job.url === '#' ? '' : (job.url || '');
     const steps = (job.steps && job.steps.length ? job.steps : DEFAULT_STEPS);
-    steps.forEach((text, i) => {
-      document.getElementById('f-step' + (i+1)).value = text;
-    });
+    formSteps = steps.slice();
+    renderStepFields();
     selectedColor = job.color;
     buildSwatches();
     selectedImage = job.customImage || null;
@@ -731,7 +742,7 @@
       pay: document.getElementById('f-pay').value.trim(),
       fulldesc: document.getElementById('f-fulldesc').value.trim(),
       url: document.getElementById('f-url').value.trim() || '#',
-      steps: [1,2,3,4].map(i => document.getElementById('f-step' + i).value.trim() || DEFAULT_STEPS[i-1]),
+      steps: formSteps.map(s => s.trim()).filter(s => s.length > 0),
       customImage: selectedImage
     };
     if(editingId !== null){
