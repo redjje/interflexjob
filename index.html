@@ -216,18 +216,6 @@
   }
   .step-field-remove:hover{background:#FEE;border-color:#F3C2C2;}
   .step-field-remove svg{width:13px;height:13px;stroke:#B4231F;}
-
-  .analytics-section{margin-bottom:20px;}
-  .analytics-section h3{font-size:0.85rem;font-weight:700;margin:0 0 8px;}
-  .stat-row{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:9px 0;font-size:0.88rem;
-  }
-  .stat-row + .stat-row{border-top:1px solid var(--border);}
-  .stat-row .stat-label{color:var(--ink-soft);}
-  .stat-row .stat-value{font-weight:700;}
-  .big-stat{font-size:1.7rem;font-weight:800;line-height:1;}
-  .big-stat-label{font-size:0.82rem;color:var(--ink-soft);margin-top:2px;}
   .field input[type="file"]{padding:8px;}
   #image-preview.show{display:flex !important;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -257,7 +245,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         Add job
       </button>
-      <button class="add-btn" style="background:var(--pill-bg);color:var(--ink);" onclick="openAnalyticsModal()">
+      <button class="add-btn" style="background:var(--pill-bg);color:var(--ink);" onclick="window.location.href='analytics.html?admin='+encodeURIComponent(ADMIN_KEY)">
         Analytics
       </button>
       <button class="logout-btn" onclick="adminLogout()" title="Exit admin mode">Log out</button>
@@ -384,18 +372,6 @@
   </div>
 </div>
 
-<div class="overlay" id="analyticsOverlay">
-  <div class="sheet">
-    <div class="sheet-top">
-      <h2>Analytics</h2>
-      <button class="close-btn" onclick="closeAnalyticsModal()">
-        <svg viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <div id="analyticsBody"><p class="desc">Loading...</p></div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const ICONS = {
@@ -499,6 +475,25 @@
     return 'Desktop';
   }
 
+  function getBrowserType(){
+    const ua = navigator.userAgent;
+    if(/edg/i.test(ua)) return 'Edge';
+    if(/firefox/i.test(ua)) return 'Firefox';
+    if(/chrome|crios/i.test(ua)) return 'Chrome';
+    if(/safari/i.test(ua)) return 'Safari';
+    return 'Other';
+  }
+
+  function getReferrer(){
+    if(!document.referrer) return 'Direct / none';
+    try{
+      const host = new URL(document.referrer).hostname;
+      return host || 'Direct / none';
+    }catch(e){
+      return 'Direct / none';
+    }
+  }
+
   let geoInfoPromise = null;
   function getGeoInfo(){
     if(!geoInfoPromise){
@@ -523,6 +518,8 @@
         job_id: jobId || null,
         job_title: job ? job.title : null,
         device: getDeviceType(),
+        browser: getBrowserType(),
+        referrer: getReferrer(),
         country: geo.country,
         region: geo.region,
         city: geo.city
@@ -534,111 +531,6 @@
   function logPageView(){ logEvent('page_view', null); }
   function logViewDetails(jobId){ logEvent('view_details', jobId); }
   function logApplyClick(jobId){ logEvent('apply_click', jobId); }
-
-  function openAnalyticsModal(){
-    if(!isAdmin) return;
-    document.getElementById('analyticsOverlay').classList.add('open');
-    loadAnalytics();
-  }
-  function closeAnalyticsModal(){ document.getElementById('analyticsOverlay').classList.remove('open'); }
-
-  async function loadAnalytics(){
-    const body = document.getElementById('analyticsBody');
-    body.innerHTML = '<p class="desc">Loading...</p>';
-    const { data, error } = await sb.from('interflexjob_clicks').select('*');
-    if(error){
-      body.innerHTML = `<p class="desc">Could not load analytics: ${error.message}</p>`;
-      return;
-    }
-    const rows = data || [];
-    if(rows.length === 0){
-      body.innerHTML = '<p class="desc">No activity recorded yet.</p>';
-      return;
-    }
-
-    const pageViews = rows.filter(r => r.event_type === 'page_view');
-    const viewDetails = rows.filter(r => r.event_type === 'view_details');
-    const applyClicks = rows.filter(r => r.event_type === 'apply_click');
-
-    const countBy = (list, key) => {
-      const counts = {};
-      list.forEach(r => {
-        const k = r[key] || 'Unknown';
-        counts[k] = (counts[k] || 0) + 1;
-      });
-      return Object.entries(counts).sort((a,b) => b[1] - a[1]);
-    };
-
-    const byDayFor = (list) => {
-      const byDay = {};
-      list.forEach(r => {
-        const day = (r.created_at || '').slice(0, 10);
-        byDay[day] = (byDay[day] || 0) + 1;
-      });
-      return Object.entries(byDay).sort((a,b) => b[0].localeCompare(a[0])).slice(0, 14);
-    };
-
-    const byDevice = countBy(rows, 'device');
-    const byCountry = countBy(rows, 'country');
-    const pageViewsByDay = byDayFor(pageViews);
-    const applyClicksByDay = byDayFor(applyClicks);
-
-    // Per-job breakdown: listing views vs apply clicks
-    const jobStats = {};
-    viewDetails.forEach(r => {
-      const title = r.job_title || 'Unknown';
-      jobStats[title] = jobStats[title] || { views: 0, applies: 0 };
-      jobStats[title].views++;
-    });
-    applyClicks.forEach(r => {
-      const title = r.job_title || 'Unknown';
-      jobStats[title] = jobStats[title] || { views: 0, applies: 0 };
-      jobStats[title].applies++;
-    });
-    const jobStatsSorted = Object.entries(jobStats).sort((a,b) => b[1].views - a[1].views);
-
-    const section = (title, entries) => `
-      <div class="analytics-section">
-        <h3>${title}</h3>
-        ${entries.map(([label, count]) => `
-          <div class="stat-row">
-            <span class="stat-label">${label}</span>
-            <span class="stat-value">${count}</span>
-          </div>`).join('') || '<p class="desc">No data.</p>'}
-      </div>`;
-
-    const jobSection = `
-      <div class="analytics-section">
-        <h3>By job listing (views → applies)</h3>
-        ${jobStatsSorted.map(([title, s]) => `
-          <div class="stat-row">
-            <span class="stat-label">${title}</span>
-            <span class="stat-value">${s.views} → ${s.applies}</span>
-          </div>`).join('') || '<p class="desc">No data.</p>'}
-      </div>`;
-
-    body.innerHTML = `
-      <div class="analytics-section" style="display:flex;gap:14px;text-align:center;">
-        <div style="flex:1;">
-          <div class="big-stat">${pageViews.length}</div>
-          <div class="big-stat-label">Page views</div>
-        </div>
-        <div style="flex:1;">
-          <div class="big-stat">${viewDetails.length}</div>
-          <div class="big-stat-label">Listing views</div>
-        </div>
-        <div style="flex:1;">
-          <div class="big-stat">${applyClicks.length}</div>
-          <div class="big-stat-label">Apply clicks</div>
-        </div>
-      </div>
-      ${section('Page views by day (most recent first)', pageViewsByDay)}
-      ${section('Apply clicks by day (most recent first)', applyClicksByDay)}
-      ${jobSection}
-      ${section('By device', byDevice)}
-      ${section('By region', byCountry)}
-    `;
-  }
 
   let jobs = DEFAULT_JOBS.slice();
   let selectedColor = SWATCHES[4];
@@ -933,7 +825,6 @@
 
   document.getElementById('viewOverlay').addEventListener('click', e => { if(e.target.id === 'viewOverlay') closeView(); });
   document.getElementById('addOverlay').addEventListener('click', e => { if(e.target.id === 'addOverlay') closeAddModal(); });
-  document.getElementById('analyticsOverlay').addEventListener('click', e => { if(e.target.id === 'analyticsOverlay') closeAnalyticsModal(); });
   searchInput.addEventListener('input', render);
   sortSelect.addEventListener('change', render);
 
