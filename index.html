@@ -440,7 +440,15 @@
 
   async function loadJobsFromCloud(){
     const { data, error } = await sb.from('interflexjob_data').select('jobs').eq('id', 1).single();
-    if(error){ console.error('Load error:', error); return; }
+    if(error){
+      console.error('Load error:', error);
+      // Network/connection issue: fall back to sample listings so the page
+      // still shows something, rather than staying stuck on "Loading...".
+      jobs = DEFAULT_JOBS.slice();
+      dataLoaded = true;
+      render();
+      return;
+    }
     if(data && data.jobs && data.jobs.length){
       jobs = data.jobs;
     } else if(isAdmin){
@@ -448,6 +456,7 @@
       jobs = DEFAULT_JOBS.slice();
       saveJobs();
     }
+    dataLoaded = true;
     render();
   }
 
@@ -461,6 +470,7 @@
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'interflexjob_data', filter: 'id=eq.1' }, payload => {
         if(payload.new && payload.new.jobs){
           jobs = payload.new.jobs;
+          dataLoaded = true;
           render();
         }
       })
@@ -546,7 +556,8 @@
   function logViewDetails(jobId){ logEvent('view_details', jobId); }
   function logApplyClick(jobId){ logEvent('apply_click', jobId).then(() => loadTodayApplyCounts()); }
 
-  let jobs = DEFAULT_JOBS.slice();
+  let jobs = [];
+  let dataLoaded = false;
   let todayApplyCounts = {};
 
   async function loadTodayApplyCounts(){
@@ -625,6 +636,10 @@
   }
 
   function render(){
+    if(!dataLoaded){
+      grid.innerHTML = `<div class="empty-state">Loading opportunities...</div>`;
+      return;
+    }
     let items = jobs.filter(j =>
       j.title.toLowerCase().includes(searchInput.value.toLowerCase()) ||
       j.desc.toLowerCase().includes(searchInput.value.toLowerCase())
