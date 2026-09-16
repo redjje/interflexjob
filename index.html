@@ -426,11 +426,11 @@
     "Not accepted? Reapply anytime"
   ];
   const DEFAULT_JOBS = [
-    { id:1, title:"Music Ratings - Spotify", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"headphones", color:"#3EA96E", flag:"popular", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Listen to newly released tracks and playlists, then submit short written ratings on sound quality, mood fit, and replay value. No experience needed — you'll get a quick style guide before your first batch.\n\nMost reviewers complete 5–10 tracks per session. Payouts are issued weekly once you hit the $20 threshold.", url:"#" },
-    { id:2, title:"Movie Reviews", desc:"Explore movie review opportunities", region:"Global", type:"Remote", independent:false, icon:"clapper", color:"#1B1D22", flag:"trending", schedule:"Flexible", location:"Global · Remote", pay:"$10–18 / review", fulldesc:"Watch trailers or short clips from upcoming releases and write a brief, honest review covering pacing, acting, and whether you'd recommend it.\n\nReviews are typically 100–200 words. New titles are added daily, so you can work whenever you have free time.", url:"#" },
-    { id:3, title:"App Beta Testing - Tiktok", desc:"Test new features and share feedback.", region:"Global", type:"Flexible", independent:true, icon:"music", color:"#111214", flag:"new", schedule:"Flexible", location:"Global · Flexible", pay:"$20–30 / test session", fulldesc:"Try out unreleased app features on your own phone and report bugs, confusing flows, or crashes through a short feedback form.\n\nEach test session takes roughly 20–30 minutes. You'll need a smartphone and a stable internet connection.", url:"#" },
-    { id:4, title:"Community Moderation - Discord", desc:"Admin and moderation.", region:"USA", type:"Part-time", independent:true, icon:"chat", color:"#5A62E8", flag:"", schedule:"Shift-based", location:"USA · Part-time", pay:"$15/hour", fulldesc:"Monitor chat activity during your assigned shift, enforce community guidelines, and escalate serious issues to the lead moderator.\n\nShifts are 3–4 hours and scheduled a week in advance. Prior moderation experience is a plus but not required.", url:"#" },
-    { id:5, title:"Music Ratings - Apple", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"music", color:"#E0342B", flag:"", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Same format as our Spotify ratings gig — listen to a short batch of tracks and rate them for quality and mood fit.\n\nGreat as a second listing if you want more volume from the same type of task.", url:"#" },
+    { id:1, postedAt: new Date(Date.now() - 2*3600*1000).toISOString(), title:"Music Ratings - Spotify", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"headphones", color:"#3EA96E", flag:"popular", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Listen to newly released tracks and playlists, then submit short written ratings on sound quality, mood fit, and replay value. No experience needed — you'll get a quick style guide before your first batch.\n\nMost reviewers complete 5–10 tracks per session. Payouts are issued weekly once you hit the $20 threshold.", url:"#" },
+    { id:2, postedAt: new Date(Date.now() - 26*3600*1000).toISOString(), title:"Movie Reviews", desc:"Explore movie review opportunities", region:"Global", type:"Remote", independent:false, icon:"clapper", color:"#1B1D22", flag:"trending", schedule:"Flexible", location:"Global · Remote", pay:"$10–18 / review", fulldesc:"Watch trailers or short clips from upcoming releases and write a brief, honest review covering pacing, acting, and whether you'd recommend it.\n\nReviews are typically 100–200 words. New titles are added daily, so you can work whenever you have free time.", url:"#" },
+    { id:3, postedAt: new Date(Date.now() - 4*3600*1000).toISOString(), title:"App Beta Testing - Tiktok", desc:"Test new features and share feedback.", region:"Global", type:"Flexible", independent:true, icon:"music", color:"#111214", flag:"new", schedule:"Flexible", location:"Global · Flexible", pay:"$20–30 / test session", fulldesc:"Try out unreleased app features on your own phone and report bugs, confusing flows, or crashes through a short feedback form.\n\nEach test session takes roughly 20–30 minutes. You'll need a smartphone and a stable internet connection.", url:"#" },
+    { id:4, postedAt: new Date(Date.now() - 4*24*3600*1000).toISOString(), title:"Community Moderation - Discord", desc:"Admin and moderation.", region:"USA", type:"Part-time", independent:true, icon:"chat", color:"#5A62E8", flag:"", schedule:"Shift-based", location:"USA · Part-time", pay:"$15/hour", fulldesc:"Monitor chat activity during your assigned shift, enforce community guidelines, and escalate serious issues to the lead moderator.\n\nShifts are 3–4 hours and scheduled a week in advance. Prior moderation experience is a plus but not required.", url:"#" },
+    { id:5, postedAt: new Date(Date.now() - 6*24*3600*1000).toISOString(), title:"Music Ratings - Apple", desc:"Explore music ratings opportunities", region:"USA", type:"Remote", independent:true, icon:"music", color:"#E0342B", flag:"", schedule:"Flexible", location:"USA · Remote", pay:"$14–22 / task", fulldesc:"Same format as our Spotify ratings gig — listen to a short batch of tracks and rate them for quality and mood fit.\n\nGreat as a second listing if you want more volume from the same type of task.", url:"#" },
   ];
 
   // ---------- Supabase (shared cloud storage) ----------
@@ -484,6 +484,20 @@
     return 'Other';
   }
 
+  function formatTimeAgo(isoString){
+    if(!isoString) return '';
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if(mins < 1) return 'Posted just now';
+    if(mins < 60) return `Posted ${mins} minute${mins===1?'':'s'} ago`;
+    const hours = Math.floor(mins / 60);
+    if(hours < 24) return `Posted ${hours} hour${hours===1?'':'s'} ago`;
+    const days = Math.floor(hours / 24);
+    if(days < 30) return `Posted ${days} day${days===1?'':'s'} ago`;
+    const months = Math.floor(days / 30);
+    return `Posted ${months} month${months===1?'':'s'} ago`;
+  }
+
   function getReferrer(){
     if(!document.referrer) return 'Direct / none';
     try{
@@ -530,9 +544,27 @@
   }
   function logPageView(){ logEvent('page_view', null); }
   function logViewDetails(jobId){ logEvent('view_details', jobId); }
-  function logApplyClick(jobId){ logEvent('apply_click', jobId); }
+  function logApplyClick(jobId){ logEvent('apply_click', jobId).then(() => loadTodayApplyCounts()); }
 
   let jobs = DEFAULT_JOBS.slice();
+  let todayApplyCounts = {};
+
+  async function loadTodayApplyCounts(){
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const { data, error } = await sb
+      .from('interflexjob_clicks')
+      .select('job_id')
+      .eq('event_type', 'apply_click')
+      .gte('created_at', todayStart.toISOString());
+    if(error){ console.error('Today counts error:', error); return; }
+    const counts = {};
+    (data || []).forEach(r => {
+      if(r.job_id) counts[r.job_id] = (counts[r.job_id] || 0) + 1;
+    });
+    todayApplyCounts = counts;
+    render();
+  }
   let selectedColor = SWATCHES[4];
   let selectedImage = null;
   let formSteps = [];
@@ -582,6 +614,9 @@
           ${pill(GLOBE, job.type)}
           ${job.independent ? pill(CHECK, "Independent listing") : ""}
         </div>
+        ${(job.postedAt || todayApplyCounts[job.id]) ? `<div style="font-size:0.78rem;color:var(--ink-soft);margin:-6px 0 12px;">
+          ${job.postedAt ? formatTimeAgo(job.postedAt) : ''}${(job.postedAt && todayApplyCounts[job.id]) ? ' · ' : ''}${todayApplyCounts[job.id] ? `🔥 ${todayApplyCounts[job.id]} applied today` : ''}
+        </div>` : ''}
         <button class="view-btn" onclick="logViewDetails(${job.id}); openView(${job.id})">
           View details
           <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
@@ -816,7 +851,7 @@
       const idx = jobs.findIndex(j => j.id === editingId);
       if(idx !== -1) jobs[idx] = { ...jobs[idx], ...fields };
     } else {
-      jobs.unshift({ id: Date.now(), ...fields });
+      jobs.unshift({ id: Date.now(), postedAt: new Date().toISOString(), ...fields });
     }
     saveJobs();
     closeAddModal();
@@ -833,6 +868,7 @@
   loadJobsFromCloud();
   subscribeToJobUpdates();
   logPageView();
+  loadTodayApplyCounts();
 </script>
 
 </body>
